@@ -2,6 +2,8 @@ import pygame
 import random
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import simpledialog
+import  database
 
 
 class Cube(object):
@@ -165,9 +167,18 @@ def message_box(subject, content):
         pass
 
 
+def username_box():
+    parent = tk.Tk()
+    parent.overrideredirect(1)  # Avoid it appearing and then disappearing quickly
+    parent.withdraw()  # Hide the window as we do not want to see this one
+    string_value = simpledialog.askstring("user", "Enter username")
+    return string_value
+
+
 def main():
     width = 500
     rows = 20
+    highest_score = 0
     # initializing pygame
     pygame.init()
     # creating the screen
@@ -181,10 +192,12 @@ def main():
     clock = pygame.time.Clock()
     snake = Snake((255, 0, 0), (10, 10), screen)
     snack = Cube(random_snack(rows, snake), color=(0, 255, 0))
+    username = username_box()
+    print(username)
     running = True
     while running:
         pygame.time.delay(50)
-        clock.tick(5)
+        clock.tick(10)
         snake.move(running)
         if snake.snake_body[0].pos == snack.pos:
             snake.add_cube()
@@ -193,6 +206,7 @@ def main():
         for x in range(len(snake.snake_body)):
             if snake.snake_body[x].pos in list(map(lambda z: z.pos, snake.snake_body[x + 1:])):
                 print('Score: ', len(snake.snake_body))
+                database.add_user(username, len(snake.snake_body))
                 message_box('You Lost!', 'Play again...')
                 snake.reset((10, 10))
                 break
